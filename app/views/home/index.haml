@@ -1,0 +1,19 @@
+#topbar
+  %h1= I18n.t(:page, :scope => [:home, :titles])
+  %h2= I18n.t(:secondary, :scope => [:home, :titles]).html_safe
+#content_wrapper.api_main
+  #col_left= image_tag "/images/main/zk_guy.jpg", :alt => I18n.t(:admin, :scope => [:home, :alts])
+  #col_right
+    %h2= I18n.t(:title, :scope => [:home, :notes, :first])
+    %p= I18n.t(:one, :scope => [:home, :notes, :first]).html_safe
+
+    %h2= I18n.t(:title, :scope => [:home, :notes, :second])
+    %p= I18n.t(:one, :scope => [:home, :notes, :second]).html_safe
+
+    %h2= I18n.t(:title, :scope => [:home, :notes, :third])
+    %p= I18n.t(:one, :scope => [:home, :notes, :third]).html_safe
+
+    %h2= I18n.t(:title, :scope => [:home, :notes, :fourth])
+    %p= I18n.t(:one, :scope => [:home, :notes, :fourth]).html_safe
+  .cfb
+#content_footer= I18n.t(:slogan, :scope => [:home, :footer])

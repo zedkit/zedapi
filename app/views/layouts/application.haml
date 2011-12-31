@@ -1,0 +1,11 @@
+%html
+%head
+  %title= I18n.translate(:window, :scope => [:home, :titles])
+  %link{ :href => image_path("/images/favicons/zed_circle.png"), :rel => "shortcut icon", :type => "image/png" }
+  =stylesheet_link_tag "website", "fonts"
+%body
+  #main_wrapper
+    #main_top= partial "shared/header"
+    #main_mid= yield
+    #main_bottom
+    = partial "shared/footer"
