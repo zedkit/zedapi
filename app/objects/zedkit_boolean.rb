@@ -15,19 +15,42 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
+class ZedkitBoolean
+  attr_accessor :value
 
-gem "padrino"
-gem "thin"
-gem "rake"
+  VALID_STRINGS = %w(true false YES NO)
 
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
+  def initialize(items = {})
+    @value = ZedkitBoolean.boolean_value(items[:value]) 
+  end
 
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+  def to_i
+    true? ? 1 : 0
+  end
+  def to_s
+    @value.to_s
+  end
+
+  def true?
+    @value
+  end
+  def false?
+    not @value
+  end
+
+  class << self
+    def valid_value?(val)
+      return true if val.is_a?(TrueClass) || val.is_a?(FalseClass)
+      return true if val.is_a?(String) && (VALID_STRINGS.include?(val.downcase) || VALID_STRINGS.include?(val.upcase))
+      return true if val.is_a?(Integer) && (val == 0 || val == 1)
+      false
+    end
+    def boolean_value(val)
+      raise Exception unless valid_value?(val)
+      if (val.is_a?(String) && ((val.downcase == "true") || (val.upcase == "YES"))) || (val.is_a?(Integer) && val == 1)
+        true
+      else
+        false end
+    end
+  end
+end

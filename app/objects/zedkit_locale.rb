@@ -15,19 +15,34 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
+class ZedkitLocale < StaticObject
+  ENGLISH    = "en"
+  ENGLISH_CA = "en-CA"
+  ENGLISH_US = "en-US"
 
-gem "padrino"
-gem "thin"
-gem "rake"
+  def name_native
+    I18n.t(name.to_sym, :locale => "en", :scope => [:locale, :native])
+  end
 
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
+  def to_api
+    {
+      "code" => code, "language" => Language.find_by_code(language).to_api_as_code,
+      "name" => I18n.t(name.to_sym, :scope => [:locale, :name]), "native" => name_native
+    }
+  end
+  def to_api_as_code
+    { "code" => code }
+  end
 
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+  class << self
+    def count
+      $locales.length
+    end
+    def all_to_api
+      $locales.map(&:to_api)
+    end
+    def find_by_code(code)
+      $locales.detect {|lc| lc.code == code }
+    end
+  end
+end

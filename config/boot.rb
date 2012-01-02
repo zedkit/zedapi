@@ -22,12 +22,23 @@ require "rubygems" unless defined?(Gem)
 require "bundler/setup"
 Bundler.require(:default, PADRINO_ENV)
 
-# Development Logging?
-# Padrino::Logger::Config[:development] = { :log_level => :devel, :stream => :stdout }
-# Padrino::Logger.log_static = true
+$: << File.expand_path(File.join(File.dirname(__FILE__), "..", "app", "objects"))
+require "static_object"
+
+Dir[File.join(File.dirname(__FILE__), "..", "app", "objects",  "*.rb")].each do |ff|
+  require ff
+end
+Dir[File.join(File.dirname(__FILE__), "..", "app", "fixtures", "*.rb")].each do |ff|
+  require ff
+end
+Dir[File.join(File.dirname(__FILE__), "..", "app", "modules",  "*.rb")].each do |ff|
+  require ff
+end
 
 Padrino.before_load do
+  I18n.default_locale = :en
   I18n.locale = :en
+  I18n.load_path << Dir[File.join(File.dirname(__FILE__), "..", "app", "locale", "*.rb")].entries
 end
 
 Padrino.after_load do

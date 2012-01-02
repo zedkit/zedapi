@@ -15,19 +15,19 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
-
-gem "padrino"
-gem "thin"
-gem "rake"
-
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
-
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+$project_prefixes = [
+  { :prefix => "lentils", :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "pinto",   :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "lima",    :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "navy",    :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "black",   :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "kidney",  :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "edamame", :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "split",   :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "eyed",    :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "anasazi", :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "fava",    :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "adzuki",  :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "bolita",  :stage => CollectionObject::PREFIX_CURRENT },
+  { :prefix => "string",  :stage => CollectionObject::PREFIX_CURRENT }
+].freeze

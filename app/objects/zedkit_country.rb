@@ -15,19 +15,42 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
+class ZedkitCountry < StaticObject
+  UNITED_STATES = "US"
+  CANADA = "CA"
+  UNKNOWABLE = "YY"
+  UNKNOWN = "ZZ"
 
-gem "padrino"
-gem "thin"
-gem "rake"
+  def actual_country?
+    not unknown_code?(code)
+  end
+  def has_regions?
+    false
+  end
 
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
+  def to_api
+    {
+      "code" => code,
+      "name" => I18n.t(name.to_sym, :scope => [:country]), "locale" => { "code" => code }, "currency" => { "code" => code }
+    }
+  end
+  def to_api_as_code
+    { "code" => code }
+  end
 
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+  class << self
+    def unknown_code?(code_to_check)
+      [UNKNOWABLE, UNKNOWN].include?(code_to_check)
+    end
+
+    def count
+      $countries.length
+    end
+    def all_to_api
+      $countries.map(&:to_api)
+    end
+    def find_by_code(code)
+      $countries.detect {|country| country.code == code }
+    end
+  end
+end

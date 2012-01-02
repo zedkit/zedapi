@@ -15,19 +15,31 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
+class Currency < StaticObject
+  USD = "USD"
+  CAD = "CAD"
+  EUR = "EUR"
+  AUD = "AUD"
+  CHF = "CHF"
+  GBP = "GBP"
+  JPY = "JPY"
 
-gem "padrino"
-gem "thin"
-gem "rake"
+  def to_api
+    { "code" => code, "symbol" => symbol, "display" => display, "name" => I18n.t(name.to_sym, :scope => [:currency]) }
+  end
+  def to_api_as_code
+    { "code" => code }
+  end
 
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
-
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+  class << self
+    def count
+      $currencies.length
+    end
+    def all_to_api
+      $currencies.collect(&:to_api)
+    end
+    def find_by_code(code)
+      $currencies.detect {|currency| currency.code == code }
+    end
+  end
+end

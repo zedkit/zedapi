@@ -15,19 +15,36 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
+require "ipaddr"
 
-gem "padrino"
-gem "thin"
-gem "rake"
+class LocationObject
+  def has_country?
+    country_code != "-" && country_name != "-"
+  end
+  def has_region?
+    region != "-"
+  end
+  def has_city?
+    city != "-"
+  end
 
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
+  class << self
+    def valid_ip_address?(address)
+      begin
+        IPAddr.new(address)
+        return true
+      rescue ArgumentError
+      end
+      false
+    end
+    def number_from_ip(ip_address)
+      (16777216 * ip_address.split(".")[0].to_i) + (65536 * ip_address.split(".")[1].to_i) +
+                                                   (256 * ip_address.split(".")[2].to_i) + (ip_address.split(".")[3].to_i)
+    end
+  end
 
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+  protected
+  def set_region
+    self.region = "-" if (not region.blank?) && region.include?("REPUBLIC OF")
+  end
+end

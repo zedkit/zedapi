@@ -15,19 +15,14 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
+class RandomCode
+  attr_reader :code, :length
 
-gem "padrino"
-gem "thin"
-gem "rake"
+  CHARS = ("a".."z").to_a + ("A".."Z").to_a + ("0".."9").to_a
+  DEFAULT_LENGTH = 12
 
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
-
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+  def initialize(options = {})
+    @length = options.has_key?(:length) ? options[:length] : DEFAULT_LENGTH
+    @code = 1.upto(@length).map(& Proc.new { CHARS[rand(CHARS.size - 1)] }).join
+  end
+end

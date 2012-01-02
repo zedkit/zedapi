@@ -1,3 +1,4 @@
+# encoding: utf-8
 #
 # Copyright (c) Zedkit.
 #
@@ -15,19 +16,12 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
-
-gem "padrino"
-gem "thin"
-gem "rake"
-
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
-
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+$currencies = [
+  Currency.new(:code => "USD", :symbol => "$",  :display => "US$", :name => "usd"),
+  Currency.new(:code => "CAD", :symbol => "$",  :display => "C$",  :name => "cad"),
+  Currency.new(:code => "EUR", :symbol => "€",  :display => "€",   :name => "eur"),
+  Currency.new(:code => "AUD", :symbol => "$",  :display => "A$",  :name => "aud"),
+  Currency.new(:code => "CHF", :symbol => "Fr", :display => "Fr",  :name => "chf"),
+  Currency.new(:code => "GBP", :symbol => "£",  :display => "£",   :name => "bgp"),
+  Currency.new(:code => "JPY", :symbol => "¥",  :display => "¥",   :name => "jpy")
+].freeze

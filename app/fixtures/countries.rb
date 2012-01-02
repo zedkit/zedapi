@@ -1,4 +1,3 @@
-# encoding: utf-8
 #
 # Copyright (c) Zedkit.
 #
@@ -16,13 +15,9 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-{ :"en" => {
-
-:api => {
-  :errors => {
-    :general => "Errors Detected on Submitted Data Item(s)",
-    :again => "Please try again."
-  }
-}
-
-} }
+$countries = [
+  ZedkitCountry.new(:locale => ZedkitLocale::ENGLISH, :currency => Currency::USD, :code => ZedkitCountry::UNITED_STATES, :name => "usa"),
+  ZedkitCountry.new(:locale => ZedkitLocale::ENGLISH, :currency => Currency::CAD, :code => ZedkitCountry::CANADA, :name => "canada"),
+  ZedkitCountry.new(:locale => ZedkitLocale::ENGLISH, :currency => Currency::USD, :code => ZedkitCountry::UNKNOWABLE, :name => "unknown"),
+  ZedkitCountry.new(:locale => ZedkitLocale::ENGLISH, :currency => Currency::USD, :code => ZedkitCountry::UNKNOWN, :name => "unknown")
+].freeze

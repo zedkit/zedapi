@@ -15,19 +15,21 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
+class StaticObject
+  def initialize(items = {})
+    items.each do |k,v|
+      self.instance_variable_set("@#{k}", v)
+      self.class.send(:define_method, k, Proc.new { self.instance_variable_get("@#{k}") })
+      self.class.send(:define_method, "#{k}=", Proc.new {|v| self.instance_variable_set("@#{k}", v) })
+    end
+  end
 
-gem "padrino"
-gem "thin"
-gem "rake"
-
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
-
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+  class << self
+    def valid_code?(code)
+      find_by_code(code).present?
+    end
+    def invalid_code?(code)
+      find_by_code(code).nil?
+    end
+  end
+end

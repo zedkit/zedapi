@@ -24,7 +24,7 @@
   :secondary => "And lots of it too.<br />People in the know know it."
 },
 :alts => {
-  :admin => "The ZedAPI Network Administrator"
+  :admin => "The ZedAPI Network Admin"
 },
 :notes => {
   :first => {
@@ -42,8 +42,8 @@
   :third => {
     :title => "Have a Smoke",
     :one => "Well, no, don't. Especially around babies or homeless people. " <<
-            "But hopefully you get the idea: using the ZedAPI is extremely satisfying, or at least we think it is, and we use it ourselves all day. " <<
-            "If there is something we can add to satisfy an edge case you have, " <<
+            "But hopefully you get the idea: using the ZedAPI is extremely satisfying, or at least we think it is, " <<
+            "and we use it ourselves all day. If there is something we can add to satisfy an edge case you have, " <<
             "or help you eliminate code on your end, please tell us! We want to code the crappy boring bits."
   },
   :fourth => {

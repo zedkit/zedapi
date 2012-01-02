@@ -15,19 +15,37 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-source :rubygems
+module ZedHelpers
+  def app
+    ZedAPI
+  end
 
-gem "padrino"
-gem "thin"
-gem "rake"
+  def pk(project)
+    case project
+    when :bert
+      @project_bert.project_keys.first.project_key
+    when :fred
+      @project_fred.project_keys.first.project_key      
+    else
+      nil end
+  end
+  def pk_with_auth(project)
+    case project
+    when :bert
+      { :project_key => pk(:bert), :username => @bert.username, :password => "AbCd" }
+    when :fred
+      { :project_key => pk(:fred), :username => @fred.username, :password => "AbCd" }
+    else
+      {} end
+  end
 
-gem "bcrypt-ruby"
-gem "haml"
-gem "sass"
-gem "uuid"
-gem "mongoid"
-gem "bson_ext", :require => "mongo"
-
-gem "rspec", :group => "test"
-gem "webrat", :group => "test"
-gem "rack-test", :require => "rack/test", :group => "test"
+  def hit(path, method, params = {})
+    basic_auth(params[:username], params[:password]) if params.has_key?(:username) && params.has_key?(:password)
+    params.delete(:username)
+    params.delete(:password)
+    visit(path, method, params)
+  end
+  def with_parsed(body)
+    yield JSON.parse(body) if block_given?
+  end
+end
