@@ -35,6 +35,8 @@ Dir[File.join(File.dirname(__FILE__), "..", "app", "modules",  "*.rb")].each do 
   require ff
 end
 
+Padrino::Logger::Config[:production] = { :log_level => :debug }
+
 Padrino.before_load do
   I18n.default_locale = :en
   I18n.locale = :en
