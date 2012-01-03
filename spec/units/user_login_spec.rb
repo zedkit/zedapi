@@ -19,7 +19,7 @@ require File.dirname(__FILE__) + "/../spec_helper"
 
 describe UserLogin do
   let(:project) { Project.create! name: "created project" }
-  let(:user) { project.users.create! :first_name => "Steve", surname: "Wozniak", email: "woz@apple.com" }
+  let(:user) { project.users.create! first_name: "Steve", surname: "Wozniak", email: "woz@apple.com" }
   let(:login) { user.logins.new address: "67.68.69.70" }
 
   context "when new" do

@@ -27,8 +27,8 @@ class User < CollectionObject
 
   BCRYPT_COST = 5
 
-  belongs_to :project, :inverse_of => :users
-  field :locale, :default => ZedkitLocale::ENGLISH
+  belongs_to :project, inverse_of: :users
+  field :locale, default: ZedkitLocale::ENGLISH
   field :uuid
   field :first_name
   field :surname
@@ -36,35 +36,36 @@ class User < CollectionObject
   field :email
   field :password
   field :user_key
-  field :version, :type => Integer, :default => 0
-  field :status,  :default => CollectionObject::ACTIVE
+  field :version, type: Integer, default: 0
+  field :status,  default: CollectionObject::ACTIVE
 
   index :uuid
-  index :user_key, :unique => true
+  index :user_key, unique: true
   index [[:project_id, Mongo::ASCENDING], [:username, Mongo::ASCENDING]]
   index [[:project_id, Mongo::ASCENDING], [:email,    Mongo::ASCENDING]]
 
-  embeds_one :user_preferences, :class_name => "UserPreferences"
+  embeds_one :user_preferences, class_name: "UserPreferences"
 
-  has_many :audits, :class_name => "AuditTrail"
-  has_many :logins, :class_name => "UserLogin"
+  has_many :audits, class_name: "AuditTrail"
+  has_many :logins, class_name: "UserLogin"
   # has_many :posts, :class_name => "BlogPost"
 
-  set_as_audited :fields => [ :locale, :first_name, :surname, :username, :email, :password, :user_key, :status ]
+  set_as_audited fields: [ :locale, :first_name, :surname, :username, :email, :password, :user_key, :status ]
 
   before_validation :set_uuid, :set_username, :set_email, :set_user_key, :set_version
-  validate :valid_associations?, :unique_username?, :unique_email?, :requires_email?, :valid_valid?, :valid_password_confirmation?
-  validates :project, :presence => true
-  validates :locale, :presence => true
-  validates :uuid, :presence => true, :uniqueness => true, :length => { :is => LENGTH_UUID }
-  validates :first_name, :length => { :maximum => 24 }
-  validates :surname, :length => { :maximum => 32 }
-  validates :username, :presence => true, :length => { :minimum => 2, :maximum => 18 }, :format => { :with => /^\w*$/ }
-  validates :email, :length => { :maximum => 64 }, :format => { :with => /@/i }
-  validates :password, :length => { :is => LENGTH_PASSWORD }, :allow_nil => true
-  validates :user_key, :presence => true, :uniqueness => true, :length => { :is => LENGTH_USER_KEY }, :format => { :with => /^\w*$/ }
-  validates :version, :presence => true, :numericality => { :greater_than_or_equal_to => 1, :only_integer => true }
-  validates :status, :presence => true, :inclusion => { :in => %w(ACTIVE DELETE) }
+  validate :valid_associations?, :unique_username?, :unique_email?, :requires_email?, :valid_valid?
+  validate :valid_password_confirmation?
+  validates :project, presence: true
+  validates :locale, presence: true
+  validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
+  validates :first_name, length: { maximum: 24 }
+  validates :surname, length: { maximum: 32 }
+  validates :username, presence: true, length: { minimum: 2, maximum: 18 }, format: { with: /^\w*$/ }
+  validates :email, length: { maximum: 64 }, format: { with: /@/i }
+  validates :password, length: { is: LENGTH_PASSWORD }, :allow_nil => true
+  validates :user_key, presence: true, uniqueness: true, length: { is: LENGTH_USER_KEY }, format: { with: /^\w*$/ }
+  validates :version, presence: true, numericality: { greater_than_or_equal_to: 1, only_integer: true }
+  validates :status, presence: true, inclusion: { :in => %w(ACTIVE DELETE) }
   after_validation :compress_messages
   
   def has_first_name?
@@ -107,10 +108,10 @@ class User < CollectionObject
     projects.length > 1
   end
   def is_admin_of_project?(project_id)
-    Project.exists?(:conditions => { id: project_id }) && Project.first(project_id).user_is_admin?(id)
+    Project.exists?(conditions: { id: project_id }) && Project.first(project_id).user_is_admin?(id)
   end
   def is_connected_to_project?(project_id)
-    Project.exists?(:conditions => { id: project_id }) && Project.first(project_id).user_is_connected?(id)
+    Project.exists?(conditions: { id: project_id }) && Project.first(project_id).user_is_connected?(id)
   end
 
   def projects
@@ -135,16 +136,15 @@ class User < CollectionObject
     ts.merge({ "version" => version, "created_at" => created_at.to_api, "updated_at" => updated_at.to_api })
   end
   def to_api(include_projects = true, include_companies = true)
-    ts = to_api_for_sandbox.merge({ "preferences" => preferences.to_api })              ## User preferences and the sandbox do not play nicely, currently.
+    ts = to_api_for_sandbox.merge({ "preferences" => preferences.to_api })
     ts["projects"] = projects.map(&:uuid) if include_projects && has_a_project?
     ts
   end
   def to_api_as_uuid_and_name
     { "uuid" => uuid, "full_name" => full_name }
   end
-
   def to_api_for_project(project_id)
-    projects.id(project_id).empty?  ? { "uuid" => uuid } : { "uuid" => uuid, "permissions" => project_permissions(project_id) }
+    projects.id(project_id).empty? ? { "uuid" => uuid } : { "uuid" => uuid, "permissions" => project_permissions(project_id) }
   end
 
   def set_password(password_to_set)
@@ -152,7 +152,7 @@ class User < CollectionObject
     @password_valid = CollectionObject::NO
     if project.present? && project.valid_user_password?(password_to_set)
       @password_valid = CollectionObject::YES
-      self.password = BCrypt::Password.create(password_to_set, :cost => BCRYPT_COST)
+      self.password = BCrypt::Password.create(password_to_set, cost: BCRYPT_COST)
     end
   end
   def valid_password?(password_to_check)
@@ -164,10 +164,10 @@ class User < CollectionObject
 
   class << self
     def valid_key?(key)
-      exists?(:conditions => { :user_key => key, :status => CollectionObject::STATUS_ACTIVE })
+      exists?(conditions: { user_key: key, status: CollectionObject::STATUS_ACTIVE })
     end
     def find_by_key(key)
-      first(:conditions => { :user_key => key, :status => CollectionObject::STATUS_ACTIVE })
+      first(conditions: { user_key: key, status: CollectionObject::STATUS_ACTIVE })
     end
   end
 
@@ -179,17 +179,17 @@ class User < CollectionObject
   def unique_username?
     if error_free? :username
       if new_record?
-        errors.add(:username, :taken) if User.active_exists?(:project_id => project_id, :username => username)
+        errors.add(:username, :taken) if User.active_exists?(project_id: project_id, username: username)
       else
-        User.each_active(:project_id => project_id, :username => username) {|u| errors.add(:username, :taken) if id != u.id } end
+        User.each_active(project_id: project_id, username: username) {|u| errors.add(:username, :taken) if id != u.id } end
     end
   end
   def unique_email?
     if has_email? && error_free?(:email)
       if new_record?
-        errors.add(:email, :taken) if User.active_exists?(:project_id => project_id, :email => email)
+        errors.add(:email, :taken) if User.active_exists?(project_id: project_id, email: email)
       else
-        User.each_active(:project_id => project_id, :email => email) {|uu| errors.add(:email, :taken) if id != uu.id } end
+        User.each_active(project_id: project_id, email: email) {|uu| errors.add(:email, :taken) if id != uu.id } end
     end
   end
   def requires_email?
@@ -207,11 +207,11 @@ class User < CollectionObject
   end
 
   def set_username
-    self.username = RandomCode.new(:length => LENGTH_GENERATED_USERNAME).code if username.blank?
+    self.username = RandomCode.new(length: LENGTH_GENERATED_USERNAME).code if username.blank?
     self.username.downcase!
   end
   def set_user_key
-    self.user_key = RandomCode.new(:length => LENGTH_USER_KEY).code if user_key.blank?
+    self.user_key = RandomCode.new(length: LENGTH_USER_KEY).code if user_key.blank?
   end
   def set_email
     self.email.downcase! if email.present?

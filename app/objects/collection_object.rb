@@ -75,7 +75,7 @@ class CollectionObject
     end
     def valid_id?(the_id)
       return false unless the_id.is_a? BSON::ObjectId
-      return true if exists?(:conditions => { id: the_id }) && first(:conditions => { id: the_id }).active?
+      return true if exists?(conditions: { id: the_id }) && first(conditions: { id: the_id }).active?
       false
     end
     def find_by_id(the_id)
@@ -84,12 +84,12 @@ class CollectionObject
 
     def valid_uuid?(uuid)
       return false if uuid.nil? || uuid.length != LENGTH_UUID
-      return true if exists?(:conditions => { uuid: uuid }) && first(:conditions => { uuid: uuid }).active?
+      return true if exists?(conditions: { uuid: uuid }) && first(conditions: { uuid: uuid }).active?
       false
     end
     def find_by_uuid(uuid)
       if uuid.present? && uuid.length == LENGTH_UUID
-        me = first(:conditions => { uuid: uuid })
+        me = first(conditions: { uuid: uuid })
         return me if me.present? && me.active?
       end
       nil
@@ -115,6 +115,6 @@ class CollectionObject
   end
 
   def key_to_normalized_value(key, overrides = :defaults)
-    key.rstrip.downcase.to_slug.normalize(:transliterations => overrides).to_s.gsub(/-/,"_").gsub(/#{TranslationObject::PERIOD_BABOSA_OVERRIDE}/,".")
+    key.rstrip.downcase.to_slug.normalize(transliterations: overrides).to_s.gsub(/-/,"_").gsub(/#{TranslationObject::PERIOD_BABOSA_OVERRIDE}/,".")
   end
 end

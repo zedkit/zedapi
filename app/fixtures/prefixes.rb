@@ -16,18 +16,18 @@
 #
 
 $project_prefixes = [
-  { :prefix => "lentils", :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "pinto",   :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "lima",    :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "navy",    :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "black",   :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "kidney",  :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "edamame", :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "split",   :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "eyed",    :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "anasazi", :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "fava",    :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "adzuki",  :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "bolita",  :stage => CollectionObject::PREFIX_CURRENT },
-  { :prefix => "string",  :stage => CollectionObject::PREFIX_CURRENT }
+  { prefix: "lentils", stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "pinto",   stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "lima",    stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "navy",    stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "black",   stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "kidney",  stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "edamame", stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "split",   stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "eyed",    stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "anasazi", stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "fava",    stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "adzuki",  stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "bolita",  stage: CollectionObject::PREFIX_CURRENT },
+  { prefix: "string",  stage: CollectionObject::PREFIX_CURRENT }
 ].freeze

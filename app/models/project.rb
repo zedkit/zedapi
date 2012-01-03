@@ -22,22 +22,22 @@ class Project < CollectionObject
 
   RESERVED_LOCATIONS = %w(api blog content corp db dns email project rest zedbeans zedblogs zeddb zedkit zedlocales)
 
-  field :locale, :default => ZedkitLocale::ENGLISH
+  field :locale, default: ZedkitLocale::ENGLISH
   field :uuid
   field :name
   field :location
   field :locales_key
-  field :version, :type => Integer, :default => 0
-  field :status,  :default => CollectionObject::ACTIVE
+  field :version, type: Integer, default: 0
+  field :status,  default: CollectionObject::ACTIVE
 
   index :uuid
   index :name
-  index :location, :unique => true
+  index :location, unique: true
   index :locales_key
   index :status
   index [[:location, Mongo::ASCENDING], [:status, Mongo::ASCENDING]]
 
-  embeds_one :project_settings, :class_name => "ProjectSettings"
+  embeds_one :project_settings, class_name: "ProjectSettings"
 
   # embeds_many :project_keys
   # embeds_many :project_users
@@ -55,19 +55,19 @@ class Project < CollectionObject
   # has_many :servers
   # has_many :content_sections
 
-  set_as_audited :fields => [ :locale, :name, :location, :locales_key, :status ]
+  set_as_audited fields: [ :locale, :name, :location, :locales_key, :status ]
 
-  before_validation :set_uuid, :set_locales_key, :set_location, :on => :create
+  before_validation :set_uuid, :set_locales_key, :set_location, on: :create
   before_validation :set_locale, :set_version
   validate :valid_associations?, :reserved_location?
-  validates :uuid, :presence => true, :uniqueness => true, :length => { :is => LENGTH_UUID }
-  validates :name, :presence => true, :length => { :minimum => 2, :maximum => 48 }
-  validates :location, :presence => true, :uniqueness => true,
-                       :length => { :minimum => 2, :maximum => 32 }, :format => { :with => /\A[\sA-Za-z0-9_-]+\Z/ }
-  validates :locales_key, :presence => true, :uniqueness => true,
-                          :length => { :is => LENGTH_LOCALES_KEY }, :format => { :with => /\A[A-Za-z0-9]+\Z/ }
-  validates :version, :presence => true, :numericality => { :greater_than_or_equal_to => 1, :only_integer => true }
-  validates :status, :presence => true, :inclusion => { :in => %w(ACTIVE DELETE) }
+  validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
+  validates :name, presence: true, length: { minimum: 2, maximum: 48 }
+  validates :location, presence: true, uniqueness: true,
+                       length: { minimum: 2, maximum: 32 }, format: { with: /\A[\sA-Za-z0-9_-]+\Z/ }
+  validates :locales_key, presence: true, uniqueness: true,
+                          length: { is: LENGTH_LOCALES_KEY }, format: { with: /\A[A-Za-z0-9]+\Z/ }
+  validates :version, presence: true, numericality: { greater_than_or_equal_to: 1, only_integer: true }
+  validates :status, presence: true, inclusion: { in: %w(ACTIVE DELETE) }
   after_validation :compress_messages
 
   def has_settings?
@@ -105,12 +105,12 @@ class Project < CollectionObject
   def to_api
     ts = {
       "uuid" => uuid, "name" => name, "location" => "http://#{location}.zedapi.com", "locales" => locales_lists,
-      "admins" => project_users.map {|pa| User.find(pa.user_id).to_api_as_uuid_and_name },
-      "keys" => project_keys.where(status: CollectionObject::ACTIVE).map(&:uuid),
+      # "admins" => project_users.map {|pa| User.find(pa.user_id).to_api_as_uuid_and_name },
+      # "keys" => project_keys.where(status: CollectionObject::ACTIVE).map(&:uuid),
       "email_settings" => email_settings.where(status: CollectionObject::ACTIVE).map(&:uuid),
-      "shelves" => project_shelves.map(&:shelf),
-      "blogs" => blogs.where(status: CollectionObject::ACTIVE).map(&:uuid),
-      "shorteners" => shorteners.where(status: CollectionObject::ACTIVE).map(&:uuid)
+      # "shelves" => project_shelves.map(&:shelf),
+      # "blogs" => blogs.where(status: CollectionObject::ACTIVE).map(&:uuid),
+      # "shorteners" => shorteners.where(status: CollectionObject::ACTIVE).map(&:uuid)
     }
     if has_settings?
       ts["settings"] = project_settings.to_api
@@ -141,10 +141,10 @@ class Project < CollectionObject
     end
 
     def valid_locales_key?(key)
-      exists?(:conditions => { locales_key: key }) && first(:conditions => { locales_key: key }).active?
+      exists?(conditions: { locales_key: key }) && first(conditions: { locales_key: key }).active?
     end
     def find_by_locales_key(key)
-      me = first(:conditions => { locales_key: key })
+      me = first(conditions: { locales_key: key })
       return me if me.present? && me.active?
       nil
     end
@@ -154,7 +154,7 @@ class Project < CollectionObject
     self.locales_key = nil
     while locales_key.blank?
       kk = RandomCode.new(length: LENGTH_LOCALES_KEY).code
-      self.locales_key = kk unless Project.exists?(:conditions => { :locales_key => kk })
+      self.locales_key = kk unless Project.exists?(conditions: { locales_key: kk })
     end
   end
 
@@ -170,7 +170,7 @@ class Project < CollectionObject
     while location.blank? do
       wps = $project_prefixes.select {|pp| pp[:stage] == PREFIX_CURRENT }
       ppp = "#{wps.at(rand(wps.length))[:prefix]}_#{wps.at(rand(wps.length))[:prefix]}_#{rand(1000)}".downcase
-      self.location = ppp unless Project.exists?(:conditions => { :location => ppp })
+      self.location = ppp unless Project.exists?(conditions: { :location => ppp })
     end
     location.downcase!
   end

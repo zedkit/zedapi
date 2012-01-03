@@ -29,6 +29,11 @@ class LocationObject
   end
 
   class << self
+    def number_from_ip(ip_address)
+      (16777216 * ip_address.split(".")[0].to_i) + (65536 * ip_address.split(".")[1].to_i) +
+                                                   (256 * ip_address.split(".")[2].to_i) + (ip_address.split(".")[3].to_i)
+    end
+
     def valid_ip_address?(address)
       begin
         IPAddr.new(address)
@@ -37,9 +42,8 @@ class LocationObject
       end
       false
     end
-    def number_from_ip(ip_address)
-      (16777216 * ip_address.split(".")[0].to_i) + (65536 * ip_address.split(".")[1].to_i) +
-                                                   (256 * ip_address.split(".")[2].to_i) + (ip_address.split(".")[3].to_i)
+    def invalid_ip_address?(address)
+      not valid_ip_address?(address)
     end
   end
 

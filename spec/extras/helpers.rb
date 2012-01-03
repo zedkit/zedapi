@@ -32,9 +32,9 @@ module ZedHelpers
   def pk_with_auth(project)
     case project
     when :bert
-      { :project_key => pk(:bert), :username => @bert.username, :password => "AbCd" }
+      { project_key: pk(:bert), username: @bert.username, password: "AbCd" }
     when :fred
-      { :project_key => pk(:fred), :username => @fred.username, :password => "AbCd" }
+      { project_key: pk(:fred), username: @fred.username, password: "AbCd" }
     else
       {} end
   end

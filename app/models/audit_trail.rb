@@ -23,7 +23,7 @@ class AuditTrail < CollectionObject
   ACTION_UPDATE   = "UPDATE"
   ACTION_DELETION = "DELETION"
 
-  belongs_to :user, :inverse_of => :audits, :index => true
+  belongs_to :user, inverse_of: :audits, index: true
   field :uuid
   field :master_type
   field :master_uuid
@@ -36,32 +36,22 @@ class AuditTrail < CollectionObject
   index :uuid
   index :master_uuid
 
-  before_validation :set_uuid, :on => :create
-  validate :valid_associations?, :valid_master?, :valid_object?, :valid_json?
-  validates :user, :presence => true
-  validates :uuid, :presence => true, :uniqueness => true, :length => { :is => LENGTH_UUID }
-  validates :master_type, :presence => true, :length => { :minimum => 4, :maximum => 32 }
-  validates :master_uuid, :presence => true, :length => { :is => LENGTH_UUID }
-  validates :object_type, :presence => true, :length => { :minimum => 4, :maximum => 32 }
-  validates :object_uuid, :presence => true, :length => { :is => LENGTH_UUID }
-  validates :state_from, :presence => true, :unless => "errors[:state_from].any? || action == 'ADDITION'"
-  validates :state_to, :presence => true
-  validates :action, :presence => true, :inclusion => { :in => %w(ADDITION UPDATE DELETION) }
+  before_validation :set_uuid, on: :create
+  validate :valid_associations?, :valid_json?
+  validates :user, presence: true
+  validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
+  validates :master_type, presence: true, length: { minimum: 4, maximum: 32 }
+  validates :master_uuid, presence: true, length: { is: LENGTH_UUID }
+  validates :object_type, presence: true, length: { minimum: 4, maximum: 32 }
+  validates :object_uuid, presence: true, length: { is: LENGTH_UUID }
+  validates :state_from, presence: true, unless: "errors[:state_from].any? || action == 'ADDITION'"
+  validates :state_to, presence: true
+  validates :action, presence: true, inclusion: { in: %w(ADDITION UPDATE DELETION) }
   after_validation :compress_messages
-
-  def to_api
-    ## TBD
-  end
 
   protected
   def valid_associations?
     errors.add :user if error_free?(:user) && User.invalid_id?(user_id)
-  end
-  def valid_master?
-    ## TBD
-  end
-  def valid_object?
-    ## TBD
   end
   def valid_json?
     if state_from.present? && error_free?(:state_from)

@@ -23,9 +23,9 @@ module Zedkit
 
     module ClassMethods
       def set_as_audited(audits = {})                                     ## :references => [], :fields => []
-        class_attribute :audit_enabled, :instance_writer => false
-        class_attribute :audited_fields, :instance_writer => false
-        class_attribute :audited_references, :instance_writer => false
+        class_attribute :audit_enabled, instance_writer: false
+        class_attribute :audited_fields, instance_writer: false
+        class_attribute :audited_references, instance_writer: false
 
         self.audit_enabled = true
         self.audited_fields, self.audited_references = [], []

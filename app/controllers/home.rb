@@ -21,9 +21,9 @@ class ZedAPI < Padrino::Application
   end
 
   get "/website/health" do
-    render "home/health", :layout => :health
+    render "home/health", layout: :health
   end
   get "/stylesheets/website.css" do
-    render "sass/website", :layout => nil
+    render "sass/website", layout: nil
   end
 end

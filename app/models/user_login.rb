@@ -19,21 +19,21 @@ class UserLogin < CollectionObject
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  belongs_to :user, :inverse_of => :logins
+  belongs_to :user, inverse_of: :logins
   field :uuid
-  field :country, :default => ZedkitCountry::UNKNOWN
+  field :country, default: ZedkitCountry::UNKNOWN
   field :address
-  field :status,  :default => CollectionObject::ACTIVE
+  field :status,  default: CollectionObject::ACTIVE
 
-  index :uuid, :unique => true
+  index :uuid, unique: true
 
   before_validation :set_uuid
   validate :valid_associations?, :valid_address?
-  validates :user, :presence => true
-  validates :uuid, :presence => true, :uniqueness => true, :length => { :is => LENGTH_UUID }
-  validates :country, :presence => true
-  validates :address, :presence => true
-  validates :status, :presence => true, :inclusion => { :in => %w(ACTIVE DELETE) }
+  validates :user, presence: true
+  validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
+  validates :country, presence: true
+  validates :address, presence: true
+  validates :status, presence: true, inclusion: { in: %w(ACTIVE DELETE) }
   after_validation :compress_messages
 
   def to_api
@@ -46,6 +46,6 @@ class UserLogin < CollectionObject
     errors.add :country if error_free?(:country) && ZedkitCountry.invalid_code?(country)
   end
   def valid_address?
-    errors.add :address if error_free?(:address) && (not LocationObject.valid_ip_address?(address))
+    errors.add :address if error_free?(:address) && LocationObject.invalid_ip_address?(address)
   end
 end

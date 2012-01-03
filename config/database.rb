@@ -36,7 +36,7 @@ Mongoid.configure do |config|
   config.raise_not_found_error = false
 end
 
-MONGOID_MODELS = %w(Shortener ShortenedUrl BetaAddress)
+MONGOID_MODELS = %w()
 MONGOID_MODELS.freeze
 
 # OR

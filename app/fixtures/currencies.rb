@@ -17,11 +17,11 @@
 #
 
 $currencies = [
-  Currency.new(:code => "USD", :symbol => "$",  :display => "US$", :name => "usd"),
-  Currency.new(:code => "CAD", :symbol => "$",  :display => "C$",  :name => "cad"),
-  Currency.new(:code => "EUR", :symbol => "€",  :display => "€",   :name => "eur"),
-  Currency.new(:code => "AUD", :symbol => "$",  :display => "A$",  :name => "aud"),
-  Currency.new(:code => "CHF", :symbol => "Fr", :display => "Fr",  :name => "chf"),
-  Currency.new(:code => "GBP", :symbol => "£",  :display => "£",   :name => "bgp"),
-  Currency.new(:code => "JPY", :symbol => "¥",  :display => "¥",   :name => "jpy")
+  Currency.new(code: "USD", symbol: "$",  display: "US$", name: "usd"),
+  Currency.new(code: "CAD", symbol: "$",  display: "C$",  name: "cad"),
+  Currency.new(code: "EUR", symbol: "€",  display: "€",   name: "eur"),
+  Currency.new(code: "AUD", symbol: "$",  display: "A$",  name: "aud"),
+  Currency.new(code: "CHF", symbol: "Fr", display: "Fr",  name: "chf"),
+  Currency.new(code: "GBP", symbol: "£",  display: "£",   name: "bgp"),
+  Currency.new(code: "JPY", symbol: "¥",  display: "¥",   name: "jpy")
 ].freeze

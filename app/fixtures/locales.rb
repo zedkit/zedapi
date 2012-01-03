@@ -16,19 +16,19 @@
 #
 
 $locales = [
-  ZedkitLocale.new(:code => "en", :language => "en", :name => "english"),
-  ZedkitLocale.new(:code => "fr", :language => "fr", :name => "french"),
-  ZedkitLocale.new(:code => "es", :language => "es", :name => "spanish"),
-  ZedkitLocale.new(:code => "de", :language => "de", :name => "german"),
-  ZedkitLocale.new(:code => "da", :language => "da", :name => "danish"),
-  ZedkitLocale.new(:code => "nl", :language => "nl", :name => "dutch"),
-  ZedkitLocale.new(:code => "el", :language => "el", :name => "greek"),
-  ZedkitLocale.new(:code => "it", :language => "it", :name => "italian"),
-  ZedkitLocale.new(:code => "pl", :language => "pl", :name => "polish"),
-  ZedkitLocale.new(:code => "ru", :language => "ru", :name => "russian"),
-  ZedkitLocale.new(:code => "sk", :language => "sk", :name => "slovak"),
-  ZedkitLocale.new(:code => "pt", :language => "pt", :name => "portuguese"),
-  ZedkitLocale.new(:code => "ar", :language => "ar", :name => "arabic")
+  ZedkitLocale.new(code: "en", language: "en", name: "english"),
+  ZedkitLocale.new(code: "fr", language: "fr", name: "french"),
+  ZedkitLocale.new(code: "es", language: "es", name: "spanish"),
+  ZedkitLocale.new(code: "de", language: "de", name: "german"),
+  ZedkitLocale.new(code: "da", language: "da", name: "danish"),
+  ZedkitLocale.new(code: "nl", language: "nl", name: "dutch"),
+  ZedkitLocale.new(code: "el", language: "el", name: "greek"),
+  ZedkitLocale.new(code: "it", language: "it", name: "italian"),
+  ZedkitLocale.new(code: "pl", language: "pl", name: "polish"),
+  ZedkitLocale.new(code: "ru", language: "ru", name: "russian"),
+  ZedkitLocale.new(code: "sk", language: "sk", name: "slovak"),
+  ZedkitLocale.new(code: "pt", language: "pt", name: "portuguese"),
+  ZedkitLocale.new(code: "ar", language: "ar", name: "arabic")
 ].freeze
 
 ##

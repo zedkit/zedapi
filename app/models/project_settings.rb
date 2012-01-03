@@ -20,29 +20,25 @@ class ProjectSettings < CollectionObject
   include Mongoid::Timestamps
   include Zedkit::Audited
 
-  embedded_in :project, :inverse_of => :project_settings
+  embedded_in :project, inverse_of: :project_settings
   field :uuid
-  field :email,   :default => CollectionObject::YES        ## Email address required for user signup?
-  field :version, :type => Integer, :default => 0
-  field :status,  :default => CollectionObject::ACTIVE
+  field :email,   default: CollectionObject::YES        ## Email address required for user signup?
+  field :version, type: Integer, default: 0
+  field :status,  default: CollectionObject::ACTIVE
 
   index :uuid
   index :status
 
-  set_as_audited :fields => [ :status ]
+  set_as_audited fields: [ :status ]
 
-  before_validation :set_uuid, :on => :create
+  before_validation :set_uuid, on: :create
   before_validation :set_values, :set_version
-
-  validates_presence_of :project, :unless => "errors[:project].any?"
-  validates_presence_of :uuid, :unless => "errors[:uuid].any?"
-  validates_length_of :uuid, :is => LENGTH_UUID, :unless => "errors[:uuid].any?"
-  validates_uniqueness_of :uuid, :unless => "errors[:uuid].any?"
-  validates_presence_of :email, :unless => "errors[:email].any?"
-  validates_inclusion_of :email, :in => %w(YES NO), :unless => "errors[:email].any?"
-  validates_numericality_of :version, :greater_than_or_equal_to => 1, :only_integer => true
-  validates_presence_of :status, :unless => "errors[:status].any?"
-  validates_inclusion_of :status, :in => %w(ACTIVE DELETE), :unless => "errors[:status].any?"
+  validates :project, presence: true
+  validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
+  validates :email, presence: true, inclusion: { in: %w(YES NO) }
+  validates :version, presence: true, numericality: { greater_than_or_equal_to: 1, only_integer: true }
+  validates :status, presence: true, inclusion: { in: %w(ACTIVE DELETE) }
+  after_validation :compress_messages
 
   def email_required?
     ZedkitBoolean.boolean_value(email)

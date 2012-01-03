@@ -16,8 +16,8 @@
 #
 
 $countries = [
-  ZedkitCountry.new(:locale => ZedkitLocale::ENGLISH, :currency => Currency::USD, :code => ZedkitCountry::UNITED_STATES, :name => "usa"),
-  ZedkitCountry.new(:locale => ZedkitLocale::ENGLISH, :currency => Currency::CAD, :code => ZedkitCountry::CANADA, :name => "canada"),
-  ZedkitCountry.new(:locale => ZedkitLocale::ENGLISH, :currency => Currency::USD, :code => ZedkitCountry::UNKNOWABLE, :name => "unknown"),
-  ZedkitCountry.new(:locale => ZedkitLocale::ENGLISH, :currency => Currency::USD, :code => ZedkitCountry::UNKNOWN, :name => "unknown")
+  ZedkitCountry.new(locale: ZedkitLocale::ENGLISH, currency: Currency::USD, code: ZedkitCountry::UNITED_STATES, name: "usa"),
+  ZedkitCountry.new(locale: ZedkitLocale::ENGLISH, currency: Currency::CAD, code: ZedkitCountry::CANADA, name: "canada"),
+  ZedkitCountry.new(locale: ZedkitLocale::ENGLISH, currency: Currency::USD, code: ZedkitCountry::UNKNOWABLE, name: "unknown"),
+  ZedkitCountry.new(locale: ZedkitLocale::ENGLISH, currency: Currency::USD, code: ZedkitCountry::UNKNOWN, name: "unknown")
 ].freeze
