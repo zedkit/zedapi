@@ -15,35 +15,37 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-PADRINO_ENV  = ENV["PADRINO_ENV"] ||= ENV["RACK_ENV"] ||= "development" unless defined?(PADRINO_ENV)
-PADRINO_ROOT = File.expand_path("../..", __FILE__) unless defined?(PADRINO_ROOT)
-$: << File.expand_path(File.join(File.dirname(__FILE__), "..", "app", "objects"))
+ZedAPI.helpers do
+  def valid_project_key?
+    @project_key.is_a? ProjectKey
+  end
+  def invalid_project_key?
+    not valid_project_key?
+  end
+  def valid_session?
+    @user.present? && @user.is_a?(User)
+  end
+  def invalid_session?
+    not valid_session?
+  end
 
-require "rubygems" unless defined?(Gem)
-require "bundler/setup"
-Bundler.require(:default, PADRINO_ENV)
+  def validate_request_items(options = {})
+    options[:require_project_key] ||= true
+    set_request_items
+    halt 200, set_error_response(code: 800) if request_has_project_key? && invalid_project_key?
+    halt 200, set_error_response(code: 801) if options[:require_project_key] && request_without_project_key?
+  end
+  def validate_session
+    halt 401 unless valid_session?
+  end
 
-require "static_object"
-
-Dir[File.join(File.dirname(__FILE__), "initializers", "*.rb")].each do |ff|
-  require ff
-end
-["ext", "objects", "fixtures", "modules"].each do |dd|
-  Dir[File.join(File.dirname(__FILE__), "..", "app", dd, "*.rb")].each do |ff|
-    require ff
+  def validate_project_uuid(uuid)
+    if uuid.present? && Project.valid_uuid?(uuid)
+      @project = Project.find_by_uuid(uuid)
+    else
+      halt 404 end
+  end
+  def validate_user_for_project
+    halt 403 unless @project.user_is_connected?(@user.id)
   end
 end
-
-Padrino::Logger::Config[:development] = { log_level: :debug }
-Padrino::Logger::Config[:production]  = { log_level: :debug, stream: :to_file }
-
-Padrino.before_load do
-  I18n.default_locale = :en
-  I18n.locale = :en
-  I18n.load_path << Dir[File.join(File.dirname(__FILE__), "..", "app", "locale", "*.rb")].entries
-end
-
-Padrino.after_load do
-end
-
-Padrino.load!

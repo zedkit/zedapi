@@ -105,7 +105,7 @@ class CollectionObject
 
   protected
   def compress_messages
-    self.errors.messages.each {|kk,vv| self.errors.messages[kk].pop if vv.length > 1 }
+    self.errors.messages.each {|kk,vv| self.errors.messages[kk].slice!(1, vv.length - 1) if vv.length > 1 }
   end
   def set_uuid
     self.uuid = (UUID.new).generate(:compact) if self.uuid.blank?

@@ -15,25 +15,39 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-class ZedAPI < Padrino::Application
-  before do
-    params.delete_if {|kk,vv| vv.nil? }
-    params.dup.each do |kk,vv|
-      if kk.is_a? String
-        params[kk.to_sym] = vv
-        params.delete(kk)
-      end
+ZedAPI.helpers do
+  def audited_save(options = {})
+    raise ArgumentError unless options.has_key?(:master) && options.has_key?(:instance)
+    master   = options[:master]
+    instance = options[:instance]
+    was_new_record = instance.new_record? ? true : false
+    if request_is_sandboxed?
+      instance.valid?
+    else
+      if @user.present?
+        instance.save_with_audit_trail(master, @user.id)
+      else
+        instance.save end
     end
+    if master.errors.empty?
+      if options.has_key?(:force_status)
+        status options[:force_status]
+      else
+        was_new_record ? status(201) : status(200)
+      end
+      json instance.to_api
+    else
+      set_error_response(code: 805, errors: instance.errors) end
   end
-
-  get :index do
-    render "home/index"
-  end
-
-  get "/website/health" do
-    render "home/health", layout: :health
-  end
-  get "/stylesheets/website.css" do
-    render "sass/website", layout: nil
+  def audited_deletion(options = {})
+    raise ArgumentError unless options.has_key?(:master) && options.has_key?(:instance)
+    master   = options[:master]
+    instance = options[:instance]
+    unless request_is_sandboxed?
+      instance.set_audit
+      instance.status = CollectionObject::DELETE
+      instance.save_with_audit_trail!(master, @user.id)
+    end
+    nil
   end
 end

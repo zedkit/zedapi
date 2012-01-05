@@ -15,37 +15,46 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-class UserLogin < CollectionObject
+class ProjectLocale < CollectionObject
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Zedkit::Audited
 
-  belongs_to :user, index: true, inverse_of: :logins
+  embedded_in :project, inverse_of: :project_locales
+  field :locale
   field :uuid
-  field :country, default: ZedkitCountry::UNKNOWN
-  field :address
-  field :status,  default: CollectionObject::ACTIVE
+  field :stage,  default: CollectionObject::STAGE_DEVELOPMENT
+  field :status, default: CollectionObject::ACTIVE
 
-  index :uuid, unique: true
+  index :uuid
+  index :status
 
-  before_validation :set_uuid
-  validate :valid_associations?, :valid_address?
-  validates :user, presence: true
+  set_as_audited fields: [ :locale, :stage, :status ]
+  
+  before_validation :set_uuid, :set_stage
+  validate :valid_associations?, :default_locale?, :unique_locale?
+  validates :locale, presence: true
   validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
-  validates :country, presence: true
-  validates :address, presence: true
+  validates :stage, presence: true, inclusion: { in: %w(DEVELOPMENT STAGE PRODUCTION) }
   validates :status, presence: true, inclusion: { in: %w(ACTIVE DELETE) }
   after_validation :compress_messages
 
   def to_api
-    { "user" => { "uuid" => user.uuid }, "uuid" => uuid, "address" => address, "login_at" => created_at.to_api }
+    { "project" => { "uuid" => project.uuid }, "locale" => { "code" => locale }, "stage" => stage }
   end
 
   protected
   def valid_associations?
-    errors.add :user if error_free?(:user) && User.invalid_id?(user_id)
-    errors.add :country if error_free?(:country) && ZedkitCountry.invalid_code?(country)
+    errors.add :locale if error_free?(:locale) && ZedkitLocale.invalid_code?(locale)
   end
-  def valid_address?
-    errors.add :address if error_free?(:address) && LocationObject.invalid_ip_address?(address)
+  def default_locale?
+    errors.add(:locale, :taken) if error_free?(:locale) && project.locale == locale
+  end
+  def unique_locale?                                                                            ## Array.count() DOES NOT WORK!
+    errors.add(:locale, :taken) if error_free?(:locale) && project.project_locales.select {|u| u.locale == locale }.length >= 2
+  end
+
+  def set_stage
+    self.stage.upcase! unless stage.blank?
   end
 end

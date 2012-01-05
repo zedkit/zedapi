@@ -15,35 +15,27 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-PADRINO_ENV  = ENV["PADRINO_ENV"] ||= ENV["RACK_ENV"] ||= "development" unless defined?(PADRINO_ENV)
-PADRINO_ROOT = File.expand_path("../..", __FILE__) unless defined?(PADRINO_ROOT)
-$: << File.expand_path(File.join(File.dirname(__FILE__), "..", "app", "objects"))
+class UserPreferences < CollectionObject
+  include Mongoid::Document
+  include Mongoid::Timestamps
+  include Zedkit::Audited
 
-require "rubygems" unless defined?(Gem)
-require "bundler/setup"
-Bundler.require(:default, PADRINO_ENV)
+  embedded_in :user, inverse_of: :user_preferences
+  field :uuid
+  field :remember, default: CollectionObject::YES
+  field :status,   default: CollectionObject::ACTIVE
 
-require "static_object"
+  index :uuid, unique: true
 
-Dir[File.join(File.dirname(__FILE__), "initializers", "*.rb")].each do |ff|
-  require ff
-end
-["ext", "objects", "fixtures", "modules"].each do |dd|
-  Dir[File.join(File.dirname(__FILE__), "..", "app", dd, "*.rb")].each do |ff|
-    require ff
+  set_as_audited fields: [ :remember, :status ]
+
+  before_validation :set_uuid
+  validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
+  validates :remember, presence: true, inclusion: { in: %w(YES NO) }
+  validates :status, presence: true, inclusion: { in: %w(ACTIVE DELETE) }
+  after_validation :compress_messages
+
+  def to_api
+    { "remember" => remember, "created_at" => created_at.to_api, "updated_at" => updated_at.to_api }
   end
 end
-
-Padrino::Logger::Config[:development] = { log_level: :debug }
-Padrino::Logger::Config[:production]  = { log_level: :debug, stream: :to_file }
-
-Padrino.before_load do
-  I18n.default_locale = :en
-  I18n.locale = :en
-  I18n.load_path << Dir[File.join(File.dirname(__FILE__), "..", "app", "locale", "*.rb")].entries
-end
-
-Padrino.after_load do
-end
-
-Padrino.load!

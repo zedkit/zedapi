@@ -15,35 +15,34 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-PADRINO_ENV  = ENV["PADRINO_ENV"] ||= ENV["RACK_ENV"] ||= "development" unless defined?(PADRINO_ENV)
-PADRINO_ROOT = File.expand_path("../..", __FILE__) unless defined?(PADRINO_ROOT)
-$: << File.expand_path(File.join(File.dirname(__FILE__), "..", "app", "objects"))
+require File.dirname(__FILE__) + "/../spec_helper"
 
-require "rubygems" unless defined?(Gem)
-require "bundler/setup"
-Bundler.require(:default, PADRINO_ENV)
+describe UserPreferences do
+  let(:project) { Project.create! name: "Created Project" }
+  let(:user) { project.users.create! first_name: "Steve", surname: "Wozniak", email: "woz@apple.com" }
+  let(:prefs) { user.create_user_preferences }
 
-require "static_object"
+  context "when new" do
+    it "is valid with valid default attributes" do
+      prefs.should be_valid
+      prefs.user.uuid.should eql user.uuid
+      prefs.uuid.should be_valid_uuid
+      prefs.remember.should eql CollectionObject::YES
+    end
 
-Dir[File.join(File.dirname(__FILE__), "initializers", "*.rb")].each do |ff|
-  require ff
-end
-["ext", "objects", "fixtures", "modules"].each do |dd|
-  Dir[File.join(File.dirname(__FILE__), "..", "app", dd, "*.rb")].each do |ff|
-    require ff
+    it "is invalid with invalid remember value" do
+      prefs.remember = "JUNK"
+      prefs.should validate_with("The automatic login preference is invalid.").on(:remember)
+    end
+  end
+
+  context "when created" do
+    it "with audit has an addition audit trail" do
+    end
+  end 
+   
+  context "when updated" do
+    it "with audit has an update audit trail" do
+    end
   end
 end
-
-Padrino::Logger::Config[:development] = { log_level: :debug }
-Padrino::Logger::Config[:production]  = { log_level: :debug, stream: :to_file }
-
-Padrino.before_load do
-  I18n.default_locale = :en
-  I18n.locale = :en
-  I18n.load_path << Dir[File.join(File.dirname(__FILE__), "..", "app", "locale", "*.rb")].entries
-end
-
-Padrino.after_load do
-end
-
-Padrino.load!

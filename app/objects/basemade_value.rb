@@ -15,35 +15,23 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-PADRINO_ENV  = ENV["PADRINO_ENV"] ||= ENV["RACK_ENV"] ||= "development" unless defined?(PADRINO_ENV)
-PADRINO_ROOT = File.expand_path("../..", __FILE__) unless defined?(PADRINO_ROOT)
-$: << File.expand_path(File.join(File.dirname(__FILE__), "..", "app", "objects"))
+class BasemadeValue
+  attr_reader :i, :value
 
-require "rubygems" unless defined?(Gem)
-require "bundler/setup"
-Bundler.require(:default, PADRINO_ENV)
+  SIXTY_TWO = ("0".."9").to_a + ("a".."z").to_a + ("A".."Z").to_a
 
-require "static_object"
+  def initialize(options = {})
+    @i = options[:i]
+    @value = set
+  end
 
-Dir[File.join(File.dirname(__FILE__), "initializers", "*.rb")].each do |ff|
-  require ff
-end
-["ext", "objects", "fixtures", "modules"].each do |dd|
-  Dir[File.join(File.dirname(__FILE__), "..", "app", dd, "*.rb")].each do |ff|
-    require ff
+  private
+  def set
+    tmpi, tmps = @i, String.new
+    while tmpi > 0
+      tmpi,r = tmpi.divmod(62)
+      tmps = (SIXTY_TWO[r]) + tmps
+    end
+    tmps
   end
 end
-
-Padrino::Logger::Config[:development] = { log_level: :debug }
-Padrino::Logger::Config[:production]  = { log_level: :debug, stream: :to_file }
-
-Padrino.before_load do
-  I18n.default_locale = :en
-  I18n.locale = :en
-  I18n.load_path << Dir[File.join(File.dirname(__FILE__), "..", "app", "locale", "*.rb")].entries
-end
-
-Padrino.after_load do
-end
-
-Padrino.load!

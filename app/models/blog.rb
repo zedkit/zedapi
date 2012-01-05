@@ -15,56 +15,53 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-class AuditTrail < CollectionObject
+class Blog < CollectionObject
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Zedkit::Audited
 
-  ACTION_ADDITION = "ADDITION"
-  ACTION_UPDATE   = "UPDATE"
-  ACTION_DELETION = "DELETION"
-
-  belongs_to :user, index: true, inverse_of: :audits
+  belongs_to :project, index: true, inverse_of: :blogs
   field :uuid
-  field :master_type
-  field :master_uuid
-  field :object_type
-  field :object_uuid
-  field :state_from
-  field :state_to
-  field :action
+  field :name
+  field :version, type: Integer, default: 0
+  field :status,  default: CollectionObject::ACTIVE
 
   index :uuid
-  index :master_uuid
+  index :status
+  index [[:project_id, Mongo::ASCENDING], [:name, Mongo::ASCENDING]]
+
+  has_many :posts, class_name: "BlogPost"
+
+  set_as_audited fields: [ :name, :status ]
 
   before_validation :set_uuid, on: :create
-  validate :valid_associations?, :valid_json?
-  validates :user, presence: true
+  before_validation :set_version
+  validate :valid_associations?, :unique_name?
+  validates :project, presence: true
   validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
-  validates :master_type, presence: true, length: { minimum: 4, maximum: 32 }
-  validates :master_uuid, presence: true, length: { is: LENGTH_UUID }
-  validates :object_type, presence: true, length: { minimum: 4, maximum: 32 }
-  validates :object_uuid, presence: true, length: { is: LENGTH_UUID }
-  validates :state_from, presence: true, unless: "errors[:state_from].any? || action == 'ADDITION'"
-  validates :state_to, presence: true
-  validates :action, presence: true, inclusion: { in: %w(ADDITION UPDATE DELETION) }
+  validates :name, presence: true, length: { minimum: 2, maximum: 48 }
+  validates :version, presence: true, numericality: { greater_than_or_equal_to: 1, only_integer: true }
+  validates :status, presence: true, inclusion: { in: %w(ACTIVE DELETE) }
   after_validation :compress_messages
+
+  def to_api
+    {
+      "project" => { "uuid" => project.uuid, "name" => project.name },
+      "uuid" => uuid, "name" => name,
+      "version" => version, "created_at" => created_at.to_api, "updated_at" => updated_at.to_api
+    }
+  end
 
   protected
   def valid_associations?
-    errors.add :user if error_free?(:user) && User.invalid_id?(user_id)
+    errors.add :project if error_free?(:project) && Project.invalid_id?(project_id)
   end
-  def valid_json?
-    if state_from.present? && error_free?(:state_from)
-      begin
-        JSON.parse(state_from)
-      rescue JSON::ParserError
-        errors.add :state_from end
-    end
-    if state_to.present? && error_free?(:state_to)
-      begin
-        JSON.parse(state_to)
-      rescue JSON::ParserError
-        errors.add :state_to end
+  def unique_name?
+    if error_free? :name
+      if new_record?
+        errors.add(:name, :taken) if Blog.active_exists?(project_id: project_id, name: name)
+      else
+        Blog.each_active(project_id: project_id, name: name) {|bb| errors.add(:name, :taken) if id != bb.id } end
     end
   end
 end

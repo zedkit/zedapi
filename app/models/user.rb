@@ -27,7 +27,7 @@ class User < CollectionObject
 
   BCRYPT_COST = 5
 
-  belongs_to :project, inverse_of: :users
+  belongs_to :project, index: true, inverse_of: :users
   field :locale, default: ZedkitLocale::ENGLISH
   field :uuid
   field :first_name
@@ -45,10 +45,11 @@ class User < CollectionObject
   index [[:project_id, Mongo::ASCENDING], [:email,    Mongo::ASCENDING]]
 
   embeds_one :user_preferences, class_name: "UserPreferences"
-
+  
   has_many :audits, class_name: "AuditTrail"
   has_many :logins, class_name: "UserLogin"
-  # has_many :posts, :class_name => "BlogPost"
+  has_many :posts, class_name: "BlogPost"
+  has_many :urls, class_name: "ShortenedUrl"
 
   set_as_audited fields: [ :locale, :first_name, :surname, :username, :email, :password, :user_key, :status ]
 
@@ -115,13 +116,11 @@ class User < CollectionObject
   end
 
   def projects
-    #Administrator.where(:user_id => id).each {|adm| puts adm.inspect }
-    #administrations.each {|adm| puts adm.inspect }
-    #Project.any_in(id: administrations.collect {|up| up.project_id }).each {|pp| puts pp.inspect }
-    #Project.any_in id: Administrator.where(:user_id => id).collect {|adm| adm.project_id }
+    Project.where("project_admins.user_id" => self.id)
   end
   def project_permissions(project_id)
-    is_connected_to_project?(project_id) ? projects.find(project_id).first.permissions : {} 
+    #is_connected_to_project?(project_id) ? projects.find(project_id).first.permissions : {} 
+    {}
   end
 
   def to_api_for_sandbox

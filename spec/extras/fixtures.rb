@@ -31,9 +31,38 @@ RSpec.configure do |config|
     @fred = User.new project: @project_bert, first_name: "Fred", surname: "Flintstone", username: "fred", email: "fred@flintstone.me"
     @fred.set_password("AbCd")
     @fred.save!
+    
+    @project_bert.project_keys.create! platform: ZedkitPlatform::WWW, name: "Bert's BBS Website"
+    @project_fred.project_keys.create! platform: ZedkitPlatform::WWW, name: "Fred's BBS Website"
+
+    @project_bert.project_locales.create! locale: "fr", stage: CollectionObject::STAGE_PRODUCTION
+    @project_bert.project_locales.create! locale: "es", stage: CollectionObject::STAGE_DEVELOPMENT
+    @project_fred.project_locales.create! locale: "fr", stage: CollectionObject::STAGE_PRODUCTION
+    @project_fred.project_locales.create! locale: "es", stage: CollectionObject::STAGE_DEVELOPMENT
+
+    @project_bert.project_admins.create! user_id: @bert.id, role: AdminRole::ADMIN
+    @project_fred.project_admins.create! user_id: @fred.id, role: AdminRole::ADMIN
+
+    @project_bert.email_settings.create! provider: EmailProvider::SENDGRID, username: "whatever", password: "pwd"
+    @project_fred.email_settings.create! provider: EmailProvider::SENDGRID, username: "whatever", password: "pwd"
+
+    @blog_bert = @project_bert.blogs.create! :name => "Bert's BBS Blog"
+    @blog_fred = @project_fred.blogs.create! :name => "Fred's BBS Blog"
+    @blog_bert.posts.create! user: @bert, title: "Ernie", content: "Ernie needs to do the dishes more often.", stage: "POSTED"
+    @blog_bert.posts.create! user: @bert, title: "Elmo", content: "Elmo is a great inspiration.", stage: "FINAL"
+    @blog_fred.posts.create! user: @fred, title: "Bam Bam", content: "Bam bam might be dyslexic.", stage: "POSTED"
+    @blog_fred.posts.create! user: @fred, title: "Let's Help", content: "Barney has a drinking problem.", stage: "FINAL"
+
+    @shortener_bert = @project_bert.shorteners.create! domain: "bert.im"
+    @shortener_fred = @project_fred.shorteners.create! domain: "fred.im"
+    @shortener_bert.urls.create! destination: "http://ericwoodward.com/"
+    @shortener_fred.urls.create! destination: "http://ericwoodward.com/"
+
+    @project_bert.beta_addresses.create! email: "sad@elmo.com"
+    @project_fred.beta_addresses.create! email: "happy@elmo.com"
   end
   config.after(:each) do
-    %w(AuditTrail UserLogin User Project).each do |zkm|
+    %w(AuditTrail BetaAddress ShortenedUrl Shortener BlogPost Blog EmailSettings UserLogin User Project).each do |zkm|
       Object.const_get(zkm).delete_all
     end
   end

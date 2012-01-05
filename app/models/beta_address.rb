@@ -15,37 +15,57 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-class UserLogin < CollectionObject
+class BetaAddress < TranslationObject
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Zedkit::Audited
 
-  belongs_to :user, index: true, inverse_of: :logins
+  belongs_to :project, index: true, inverse_of: :beta_addresses
   field :uuid
-  field :country, default: ZedkitCountry::UNKNOWN
-  field :address
+  field :email
+  field :invited, default: CollectionObject::NO
+  field :version, type: Integer, default: 0
   field :status,  default: CollectionObject::ACTIVE
 
   index :uuid, unique: true
+  index :email
+  index :status
+  index [[:project_id, Mongo::ASCENDING], [:email, Mongo::ASCENDING]]
 
-  before_validation :set_uuid
-  validate :valid_associations?, :valid_address?
-  validates :user, presence: true
+  set_as_audited fields: [ :email, :invited, :status ]
+
+  before_validation :set_uuid, :set_email, :set_version
+  validate :valid_associations?, :unique_email?
+  validates :project, presence: true
   validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
-  validates :country, presence: true
-  validates :address, presence: true
+  validates :email, presence: true, length: { minimum: 5, maximum: 128 }, format: { with: /@/i }
+  validates :invited, presence: true, inclusion: { in: %w(YES NO) }
+  validates :version, presence: true, numericality: { greater_than_or_equal_to: 1, only_integer: true }
   validates :status, presence: true, inclusion: { in: %w(ACTIVE DELETE) }
   after_validation :compress_messages
 
   def to_api
-    { "user" => { "uuid" => user.uuid }, "uuid" => uuid, "address" => address, "login_at" => created_at.to_api }
+    {
+      "project" => { "uuid" => project.uuid }, "uuid" => uuid,
+      "email" => email, "invited" => invited,
+      "version" => version, "created_at" => created_at.to_api, "updated_at" => updated_at.to_api
+    }
   end
 
   protected
   def valid_associations?
-    errors.add :user if error_free?(:user) && User.invalid_id?(user_id)
-    errors.add :country if error_free?(:country) && ZedkitCountry.invalid_code?(country)
+    errors.add :project if error_free?(:project) && Project.invalid_id?(project_id)
   end
-  def valid_address?
-    errors.add :address if error_free?(:address) && LocationObject.invalid_ip_address?(address)
+  def unique_email?
+    if email.present? && error_free?(:email)
+      if new_record?
+        errors.add(:email, :taken) if BetaAddress.active_exists?(project_id: project_id, email: email)
+      else
+        BetaAddress.each_active(email: email) {|ba| errors.add(:email, :taken) if id != ba.id } end
+    end
+  end
+
+  def set_email
+    self.email.downcase! if email.present?
   end
 end

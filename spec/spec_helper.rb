@@ -24,6 +24,7 @@ require "rspec/autorun"
 require "webrat"
 
 require File.join(File.dirname(__FILE__), "extras", "fixtures.rb")
+require File.join(File.dirname(__FILE__), "extras", "logs.rb")
 require File.join(File.dirname(__FILE__), "extras", "helpers.rb")
 require File.join(File.dirname(__FILE__), "extras", "matchers.rb")
 

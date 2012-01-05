@@ -38,18 +38,17 @@ class Project < CollectionObject
   index [[:location, Mongo::ASCENDING], [:status, Mongo::ASCENDING]]
 
   embeds_one :project_settings, class_name: "ProjectSettings"
-
-  # embeds_many :project_keys
-  # embeds_many :project_users
-  # embeds_many :project_locales
+  embeds_many :project_keys
+  embeds_many :project_locales
+  embeds_many :project_admins
   # embeds_many :project_shelves, :class_name => "ProjectShelf"
 
   has_many :users
-  # has_many :email_messages
-  # has_many :email_settings, :class_name => "EmailSettings"
-  # has_many :beta_addresses
-  # has_many :shorteners
-  # has_many :blogs
+  has_many :blogs
+  has_many :shorteners
+  has_many :email_messages
+  has_many :email_settings, class_name: "EmailSettings"
+  has_many :beta_addresses
   # has_many :logs
   # has_many :queues
   # has_many :servers
@@ -74,8 +73,7 @@ class Project < CollectionObject
     project_settings.present?
   end
   def settings
-    return project_settings if has_settings?
-    ProjectSettings.new(project: self)
+    has_settings? ? project_settings : ProjectSettings.new(project: self)
   end
 
   def has_locales?
@@ -93,24 +91,24 @@ class Project < CollectionObject
   end
 
   def has_admins?
-    project_users.present?
+    project_admins.present?
   end
   def user_is_admin?(user_id)
-    user_is_connected?(user_id) && UserRole.find_by_code(project_users.where(user_id: user_id).first.role).is_admin?
+    user_is_connected?(user_id) && AdminRole.find_by_code(project_admins.where(user_id: user_id).first.role).is_admin?
   end
   def user_is_connected?(user_id)
-    project_users.where(user_id: user_id).length > 0
+    project_admins.where(user_id: user_id).length > 0
   end
 
   def to_api
     ts = {
       "uuid" => uuid, "name" => name, "location" => "http://#{location}.zedapi.com", "locales" => locales_lists,
-      # "admins" => project_users.map {|pa| User.find(pa.user_id).to_api_as_uuid_and_name },
-      # "keys" => project_keys.where(status: CollectionObject::ACTIVE).map(&:uuid),
+      "admins" => project_admins.map {|pa| User.find(pa.user_id).to_api_as_uuid_and_name },
+      "keys" => project_keys.where(status: CollectionObject::ACTIVE).map(&:uuid),
       "email_settings" => email_settings.where(status: CollectionObject::ACTIVE).map(&:uuid),
       # "shelves" => project_shelves.map(&:shelf),
-      # "blogs" => blogs.where(status: CollectionObject::ACTIVE).map(&:uuid),
-      # "shorteners" => shorteners.where(status: CollectionObject::ACTIVE).map(&:uuid)
+      "blogs" => blogs.where(status: CollectionObject::ACTIVE).map(&:uuid),
+      "shorteners" => shorteners.where(status: CollectionObject::ACTIVE).map(&:uuid)
     }
     if has_settings?
       ts["settings"] = project_settings.to_api

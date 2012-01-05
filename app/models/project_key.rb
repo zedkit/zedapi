@@ -15,37 +15,49 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-class UserLogin < CollectionObject
+class ProjectKey < CollectionObject
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Zedkit::Audited
 
-  belongs_to :user, index: true, inverse_of: :logins
+  PROJECT_KEY_LENGTH = 18
+
+  embedded_in :project, inverse_of: :project_keys
+  field :platform, default: ZedkitPlatform::WWW
   field :uuid
-  field :country, default: ZedkitCountry::UNKNOWN
-  field :address
-  field :status,  default: CollectionObject::ACTIVE
+  field :name
+  field :project_key
+  field :status, default: CollectionObject::ACTIVE
 
-  index :uuid, unique: true
+  index :uuid
+  index :project_key
+  index :status
 
-  before_validation :set_uuid
-  validate :valid_associations?, :valid_address?
-  validates :user, presence: true
+  set_as_audited fields: [ :platform, :name, :project_key, :status ]
+
+  before_validation :set_uuid, :set_key, on: :create
+  validate :valid_associations?
+  validates :project, presence: true
+  validates :platform, presence: true
   validates :uuid, presence: true, uniqueness: true, length: { is: LENGTH_UUID }
-  validates :country, presence: true
-  validates :address, presence: true
+  validates :name, presence: true, length: { minimum: 2, maximum: 32 }
+  validates :project_key, presence: true, uniqueness: true, length: { is: PROJECT_KEY_LENGTH }
   validates :status, presence: true, inclusion: { in: %w(ACTIVE DELETE) }
   after_validation :compress_messages
 
   def to_api
-    { "user" => { "uuid" => user.uuid }, "uuid" => uuid, "address" => address, "login_at" => created_at.to_api }
+    {
+      "project" => { "uuid" => project.uuid, "name" => project.name },
+      "uuid" => uuid, "platform" => { "code" => platform },
+      "key" => project_key, "name" => name, "created_at" => created_at.to_api, "updated_at" => updated_at.to_api
+    }
   end
 
   protected
   def valid_associations?
-    errors.add :user if error_free?(:user) && User.invalid_id?(user_id)
-    errors.add :country if error_free?(:country) && ZedkitCountry.invalid_code?(country)
+    errors.add :platform if error_free?(:platform) && ZedkitPlatform.invalid_code?(platform)
   end
-  def valid_address?
-    errors.add :address if error_free?(:address) && LocationObject.invalid_ip_address?(address)
+  def set_key
+    self.project_key = RandomCode.new(length: PROJECT_KEY_LENGTH).code if project_key.blank?
   end
 end

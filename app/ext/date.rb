@@ -15,35 +15,30 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-PADRINO_ENV  = ENV["PADRINO_ENV"] ||= ENV["RACK_ENV"] ||= "development" unless defined?(PADRINO_ENV)
-PADRINO_ROOT = File.expand_path("../..", __FILE__) unless defined?(PADRINO_ROOT)
-$: << File.expand_path(File.join(File.dirname(__FILE__), "..", "app", "objects"))
+class Date
+  class << self
+    def zk_valid?(date_item)
+      begin
+        Date.strptime(date_item)
+        return true
+      rescue ArgumentError => e
+      end
+      false
+    end
+    def zk_invalid?(date_item)
+      not valid_date?(date_item)
+    end
 
-require "rubygems" unless defined?(Gem)
-require "bundler/setup"
-Bundler.require(:default, PADRINO_ENV)
+    def earlier?(compared_date, static_date)
+      static_date.to_time.to_i > compared_date.to_time.to_i
+    end
+  end
 
-require "static_object"
-
-Dir[File.join(File.dirname(__FILE__), "initializers", "*.rb")].each do |ff|
-  require ff
-end
-["ext", "objects", "fixtures", "modules"].each do |dd|
-  Dir[File.join(File.dirname(__FILE__), "..", "app", dd, "*.rb")].each do |ff|
-    require ff
+  def to_first_of_the_month
+    self - (self.strftime("%d").to_i - 1)
   end
 end
 
-Padrino::Logger::Config[:development] = { log_level: :debug }
-Padrino::Logger::Config[:production]  = { log_level: :debug, stream: :to_file }
-
-Padrino.before_load do
-  I18n.default_locale = :en
-  I18n.locale = :en
-  I18n.load_path << Dir[File.join(File.dirname(__FILE__), "..", "app", "locale", "*.rb")].entries
-end
-
-Padrino.after_load do
-end
-
-Padrino.load!
+## date_to_process.strftime("%d").gsub(/^0/,"")
+## date_to_process.strftime("%b")
+## date_to_process.strftime("%Y")

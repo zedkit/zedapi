@@ -16,7 +16,41 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-{ :"en" => { :mongoid => { :errors => { :models => {
+{ :"en" => { :mongoid => {
+
+:representations => {
+
+  :audit_trail => "AuditTrail",
+  :blog => "Blog",
+  :blog_post => "BlogPost",
+  :email_message => "EmailMessage",
+  :email_provider => "EmailProvider",
+  :email_settings => "EmailSettings",
+  :project => "Project",
+  :project_key => "ProjectKey",
+  :project_locale => "ProjectLocale",
+  :user => "User",
+  :user_login => "UserLogin",
+  :user_preferences => "UserPreferences"
+
+},
+:models => {
+  
+  :audit_trail => "Audit Trail",
+  :blog => "Blog",
+  :blog_post => "BlogPost",
+  :email_message => "Email Message",
+  :email_provider => "Email Provider",
+  :email_settings => "Email Settings",
+  :project => "Project",
+  :project_key => "Project Key",
+  :project_locale => "Project Locale",
+  :user => "User",
+  :user_login => "User Login",
+  :user_preferences => "User Preferences"
+
+},
+:errors => { :models => {
 
 :project => {
   :attributes => {
@@ -39,6 +73,74 @@
       :invalid => "The project locales key is invalid.",
       :taken => "The project locales key is already in use.",
       :wrong_length => "The project locales key must be 18 characters."
+    }
+  }
+},
+:project_key => {
+  :attributes => {
+    :platform => {
+      :blank => "The platform is a required data item.",
+      :invalid => "The platform is invalid."
+    },
+    :name => {
+      :blank   => "The project API key's name is a required data item.",
+      :invalid => "The project API key name is invalid.",
+      :too_short => "The project API key's name must be between 2 and 32 characters.",
+      :too_long  => "The project API key's name must be between 2 and 32 characters."
+    },
+    :project_key => {
+      :blank   => "The project API key is a required data item.",
+      :invalid => "The project API key is invalid.",
+      :taken => "The project API key is already in use.",
+      :wrong_length => "The project API key is not 18 characters."
+    }
+  }
+},
+:project_locale => {
+  :attributes => {
+    :locale => {
+      :blank => "The locale is a required data item.",
+      :invalid => "The locale is invalid.",
+      :taken => "The locale already set for this project."
+    },
+    :stage => {
+      :blank => "The project locale's stage is a required data item.",
+      :inclusion => "The project locale's stage is invalid."
+    }
+  }
+},
+:project_admin => {
+  :attributes => {
+    :user => {
+      :blank => "The user does not exist or its use is not available.",
+      :invalid => "The user does not exist or its use is not available.",
+      :taken => "The user is already attached to the project."
+    },
+    :role => {
+      :blank => "The user role is a required data item.",
+      :invalid => "The user role is invalid."
+    }
+  }
+},
+:email_settings => {
+  :attributes => {
+    :project => {
+      :blank => "The project does not exist or its use is not available.",
+      :invalid => "The project does not exist or its use is not available."
+    },
+    :provider => {
+      :invalid => "The email provider is invalid.",
+      :taken => "Email settings already exist for the email provider."
+    },
+    :username => {
+      :blank => "The username is a required data item.",
+      :invalid => "The username is invalid.",
+      :too_long => "The username is too long. The username cannot exceed 48 characters."
+    },
+    :password => {
+      :blank => "The password is a required data item.",
+      :invalid => "The password is invalid.",
+      :too_long => "The password is too long. The password cannot exceed 48 characters."
     }
   }
 },
@@ -81,6 +183,120 @@
     :user_key => {
       :invalid => "A user API key can only be 18 alphanumeric characters.",
       :wrong_length => "A user API key can only be 18 alphanumeric characters."
+    }
+  }
+},
+:user_preferences => {
+  :attributes => {
+    :remember => { :inclusion => "The automatic login preference is invalid." }
+  }
+},
+
+:blog => {
+  :attributes => {
+    :project => {
+      :blank => "The project does not exist or its use is not available.",
+      :invalid => "The project does not exist or its use is not available."
+    },
+    :name => {
+      :blank   => "The blog name is a required data item.",
+      :invalid => "The blog name is invalid.",
+      :too_short => "A blog's name must be between 2 and 24 characters.",
+      :too_long  => "A blog's name must be between 2 and 24 characters."
+    }                   
+  },
+},
+:blog_post => {
+  :attributes => {
+    :blog => {
+      :blank => "The blog does not exist or its use is not available.",
+      :invalid => "The blog does not exist or its use is not available."
+    },
+    :user => {
+      :blank => "The user does not exist or its use is not available.",
+      :invalid => "The user does not exist or its use is not available."
+    },
+    :markup => {
+      :blank => "The content markup type is a required data item.",
+      :invalid => "The content markup type is invalid."
+    },
+    :title => {
+      :blank   => "The post title is a required data item.",
+      :invalid => "The post title is invalid.",
+      :too_short => "A post's title must be between 2 and 128 characters.",
+      :too_long  => "A post's title must be between 2 and 128 characters."
+    },
+    :url => {
+      :invalid => "The external URL is invalid.",
+      :exclusion => "A external URL can only be an HTTP endpoint.",
+      :too_short => "The external URL is too short. It must be at least 12 characters.",
+      :too_long => "The external URL is too long. It cannot exceed 128 characters."
+    },
+    :content => {
+      :too_long  => "A post's content size cannot exceed 5,000 characters."
+    },
+    :stage => {
+      :blank => "The blog post's stage is a required data item.",
+      :invalid => "The blog post's stage is invalid.",
+      :inclusion => "The blog post's stage is invalid."
+    }
+  },
+},
+
+:shortener => {
+  :attributes => {
+    :project => {
+      :blank => "The project does not exist or its use is not available.",
+      :invalid => "The project does not exist or its use is not available."
+    },
+    :domain => {
+      :blank   => "The domain name is a required data item.",
+      :invalid => "The domain name is invalid.",
+      :taken => "The domain name is already in use.",
+      :too_short => "A domain must be at least 5 characters.",
+      :too_long  => "A domain cannot exceed 48 characters."
+    }                   
+  },
+},
+:shortened_url => {
+  :attributes => {
+    :shortener => {
+      :blank => "The shortener does not exist or its use is not available.",
+      :invalid => "The shortener does not exist or its use is not available."
+    },
+    :user => {
+      :blank => "The user does not exist or its use is not available.",
+      :invalid => "The user does not exist or its use is not available."
+    },
+    :destination => {
+      :blank => "The destination URL is a required data item.",
+      :invalid => "The destination URL is invalid.",
+      :too_short => "The destination URL must be at least 12 characters.",
+      :too_long  => "The destination URL cannot exceed 1024 characters."
+    },
+    :standing => {
+      :blank => "The shortened URL's standing is a required data item.",
+      :inclusion => "The shortened URL's standing is invalid."
+    }
+  }
+},
+
+:beta_address => {
+  :attributes => {
+    :project => {
+      :blank => "The project does not exist or its use is not available.",
+      :invalid => "The project does not exist or its use is not available."
+    },
+    :email => {
+      :blank   => "The email address is a required data item.",
+      :invalid => "The email address is invalid.",
+      :taken => "The email address is already regstered for early access.",
+      :too_short => "An email address must be at least 5 characters.",
+      :too_long  => "An email address cannot exceed 128 characters."
+    },
+    :invited => {
+      :blank => "The invitation status is required.",
+      :inclusion => "The invitation status submitted is invalid."
     }
   }
 },
