@@ -23,7 +23,10 @@ ZedAPI.controllers :project_keys do
     validate_user_for_project
   end
   before :update, :deletion do
-    validate_project_key_uuid(params[:key_uuid])
+    if @project.project_keys.detect {|pk| pk.uuid == params[:key_uuid] }.present?
+      @project_key = @project.project_keys.detect {|pk| pk.uuid == params[:key_uuid] }.set_audit
+    else
+      halt 404 end
   end
 
   get :index, map: "/projects/:uuid/keys", provides: :js do
@@ -61,14 +64,5 @@ ZedAPI.controllers :project_keys do
 
   delete :deletion, map: "/projects/:uuid/keys/:key_uuid", provides: :js do
     audited_deletion(master: @project, instance: @project_key)
-  end
-  
-  helpers do
-    def validate_project_key_uuid(uuid)
-      if @project.project_keys.detect {|pk| pk.uuid == uuid }.present?
-        @project_key = @project.project_keys.detect {|pk| pk.uuid == uuid }.set_audit
-      else
-        halt 404 end
-    end
   end
 end

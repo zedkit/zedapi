@@ -23,7 +23,10 @@ ZedAPI.controllers :project_locales do
     validate_user_for_project
   end
   before :update, :deletion do
-    validate_project_locale_uuid(params[:code])
+    if ZedkitLocale.valid_code?(params[:code]) && @project.locale_is_connected?(params[:code])
+      @project_locale = @project.project_locales.detect {|pl| pl.locale == params[:code] }.set_audit
+    else
+      halt 404 end
   end
 
   get :verify, map: "/projects/verify/locales", provides: :js do
@@ -67,14 +70,5 @@ ZedAPI.controllers :project_locales do
 
   delete :deletion, map: "/projects/:uuid/locales/:code", provides: :js do
     audited_deletion(master: @project, instance: @project_locale)
-  end
-
-  helpers do
-    def validate_project_locale_uuid(locale)
-      if ZedkitLocale.valid_code?(locale) && @project.locale_is_connected?(locale)
-        @project_locale = @project.project_locales.detect {|pl| pl.locale == locale }.set_audit
-      else
-        halt 404 end
-    end
   end
 end

@@ -41,11 +41,29 @@ ZedAPI.helpers do
 
   def validate_project_uuid(uuid)
     if uuid.present? && Project.valid_uuid?(uuid)
-      @project = Project.find_by_uuid(uuid)
+      @project = Project.find_by_uuid(uuid).set_audit
+    else
+      halt 404 end
+  end
+  def validate_user_uuid
+    if params.has_key?(:uuid) && User.valid_uuid?(params[:uuid])
+      @user_to_process = User.find_by_uuid(params[:uuid]).set_audit 
     else
       halt 404 end
   end
   def validate_user_for_project
     halt 403 unless @project.user_is_connected?(@user.id)
+  end
+  def validate_blog_uuid(uuid)
+    if uuid.present? && Blog.valid_uuid?(uuid)
+      @blog = Blog.find_by_uuid(uuid).set_audit
+    else
+      halt 404 end
+  end
+  def validate_shortener_uuid(uuid)
+    if uuid.present? && Shortener.valid_uuid?(uuid)
+      @shortener = Shortener.find_by_uuid(uuid).set_audit 
+    else
+      halt 404 end
   end
 end

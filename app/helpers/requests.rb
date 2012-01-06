@@ -42,6 +42,41 @@ ZedAPI.helpers do
     end
     false
   end
+  
+  # For index endpoints that support a "where" clause restriction.
+  #   options: :case => :up, or :case => :down
+  #   limit = zedkit_limit(:default => 10, :maximum => 25)
+  #   posts = items.where(zedkit_where({ :fields => [:stage], :case => :up },
+  #                                    { :fields => [:title_path], :case => :down })).desc(:created_at).limit(limit)
+
+  def zedkit_where(*items)
+    ts = { status: CollectionObject::ACTIVE }
+    if params.has_key?(:where)
+      items.each do |set|
+        set[:fields].each do |field|
+          if params[:where].has_key?(field.to_s)
+
+            ts.merge!({ field => params[:where][field.to_s] })
+            if set.has_key?(:case)
+              ts[field].upcase   if set[:case] == :up
+              ts[field].downcase if set[:case] == :down
+            end
+
+          end
+        end
+      end
+    end
+    ts
+  end
+  def zedkit_limit(options = {})
+    options[:maximum] ||= 50
+    options[:default] ||= 25
+    limit = params.has_key?(:option) && params[:option].has_key?("limit") ? params[:option]["limit"].to_i
+                                                                          : options[:default].to_i
+    limit = options[:default].to_i if limit < 1
+    limit = options[:maximum].to_i if limit > options[:maximum].to_i
+    limit
+  end
 
   def request_has_project_key?
     params.has_key? :project_key
