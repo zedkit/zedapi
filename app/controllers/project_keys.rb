@@ -29,11 +29,10 @@ ZedAPI.controllers :project_keys do
       halt 404 end
   end
 
-  get :index, map: "/projects/:uuid/keys", provides: :js do
+  get :list, map: "/projects/:uuid/keys", provides: :js do
     json @project.project_keys.where(status: CollectionObject::ACTIVE).map {|pp| pp.to_api.without(:project) }
   end
-
-  post :index, map: "/projects/:uuid/keys", provides: :js do
+  post :create, map: "/projects/:uuid/keys", provides: :js do
     if params.has_key?(:key) && has_parameters?(params[:key], %w(name))
 
       pk = ProjectKey.new(project: @project, name: params[:key]["name"])
@@ -61,7 +60,6 @@ ZedAPI.controllers :project_keys do
     else
       status 400 end
   end
-
   delete :deletion, map: "/projects/:uuid/keys/:key_uuid", provides: :js do
     audited_deletion(master: @project, instance: @project_key)
   end

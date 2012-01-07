@@ -39,7 +39,7 @@ ZedAPI.controllers :projects do
     status 403
   end
 
-  get :index, map: "/projects", provides: :js do
+  get :list, map: "/projects", provides: :js do
     json(@user.projects.where(status: CollectionObject::ACTIVE).order_by(:name.asc).collect {|pts|
       { "project" => pts.to_api.without(:project), "permissions" => @user.project_permissions(pts.id) }
     })

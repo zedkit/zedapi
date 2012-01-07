@@ -16,7 +16,7 @@
 #
 
 ZedAPI.controllers :project_locales do
-  before :index, :create, :update, :deletion do
+  before :list, :create, :update, :deletion do
     validate_request_items
     validate_session
     validate_project_uuid(params[:uuid])
@@ -36,10 +36,9 @@ ZedAPI.controllers :project_locales do
       status 403 end
   end
   
-  get :index, map: "/projects/:uuid/locales", provides: :js do
+  get :list, map: "/projects/:uuid/locales", provides: :js do
     json @project.project_locales.where(status: CollectionObject::ACTIVE).map {|pl| pl.to_api.without(:project) }
   end
-
   post :create, map: "/projects/:uuid/locales", provides: :js do
     if params.has_key?(:locale) && has_parameters?(params[:locale], %w(code))
 
@@ -67,7 +66,6 @@ ZedAPI.controllers :project_locales do
     else
       status 400 end
   end
-
   delete :deletion, map: "/projects/:uuid/locales/:code", provides: :js do
     audited_deletion(master: @project, instance: @project_locale)
   end
