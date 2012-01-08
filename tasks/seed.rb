@@ -15,9 +15,31 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-namespace :mongo do
+PADRINO_ENV = "development" unless defined?(PADRINO_ENV)
+require File.expand_path(File.dirname(__FILE__) + "/../config/boot")
+
+namespace :db do
   desc "Seed the database with starting fixtures"
   task :seed do
-    # TBD
+    p = Project.create! name: "Zedkit Gems", locale: "en", location: "gems", :locales_key => "6yca7DsnBvaDVupKEZ"
+    puts "Project gems: CREATED."
+    p.project_keys.create! platform: ZedkitPlatform::WWW, name: "Zedkit Gems", :project_key => "BE1OZog8gJogtQTosh"
+    puts "Project gems Project KEY: CREATED."
+
+    u = User.new project: p, first_name: "Gems", username: "gems", email: "gems@zedkit.com"
+    u.set_password("NGIaDhr5vDlXo1tDs6bW3Gd")
+    u.save!
+    puts "User gems@zedkit.com: CREATED."
+
+    l = User.new project: p, first_name: "Lacky", username: "lacky", email: "lacky@zedkit.com"
+    l.set_password("NGIaDhr5vDlXo1tDs6bW3Gd")
+    l.save!
+    puts "User lacky@zedkit.com: CREATED."
+
+    p.project_admins.create! user_id: u.id, role: AdminRole::ADMIN
+    p.project_admins.create! user_id: l.id, role: AdminRole::ADMIN
+    puts "Project ADMINISTRATIONS: CREATED."
+
+    b = p.blogs.create! name: "Blog"
   end
 end

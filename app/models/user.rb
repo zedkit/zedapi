@@ -134,13 +134,11 @@ class User < CollectionObject
     ts["email"] = email if has_email?
     ts.merge({ "version" => version, "created_at" => created_at.to_api, "updated_at" => updated_at.to_api })
   end
-  def to_api(include_projects = true, include_companies = true)
+  def to_api(options = {})
+    options[:include_projects] ||= true
     ts = to_api_for_sandbox.merge({ "preferences" => preferences.to_api })
-    ts["projects"] = projects.map(&:uuid) if include_projects && has_a_project?
+    ts["projects"] = projects.map(&:uuid) if options[:include_projects] && has_a_project?
     ts
-  end
-  def to_api_as_uuid_and_name
-    { "uuid" => uuid, "full_name" => full_name }
   end
   def to_api_for_project(project_id)
     projects.id(project_id).empty? ? { "uuid" => uuid } : { "uuid" => uuid, "permissions" => project_permissions(project_id) }

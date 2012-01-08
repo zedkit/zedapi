@@ -45,6 +45,7 @@ class ProjectAdmin < CollectionObject
   def to_api
     {
       "project" => { "uuid" => project.uuid, "name" => project.name }, "user" => { "uuid" => User.find(user_id).uuid },
+      "uuid" => uuid,
       "role" => { "code" => role }, "permissions" => permissions,
       "created_at" => created_at.to_api, "updated_at" => updated_at.to_api
     }

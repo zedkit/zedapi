@@ -103,10 +103,9 @@ class Project < CollectionObject
   def to_api
     ts = {
       "uuid" => uuid, "name" => name, "location" => "http://#{location}.zedapi.com", "locales" => locales_lists,
-      "admins" => project_admins.map {|pa| User.find(pa.user_id).to_api_as_uuid_and_name },
+      "admins" => project_admins.where(status: CollectionObject::ACTIVE).map(&:uuid),
       "keys" => project_keys.where(status: CollectionObject::ACTIVE).map(&:uuid),
       "email_settings" => email_settings.where(status: CollectionObject::ACTIVE).map(&:uuid),
-      # "shelves" => project_shelves.map(&:shelf),
       "blogs" => blogs.where(status: CollectionObject::ACTIVE).map(&:uuid),
       "shorteners" => shorteners.where(status: CollectionObject::ACTIVE).map(&:uuid)
     }

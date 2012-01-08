@@ -85,7 +85,8 @@ ZedAPI.helpers do
     params.has_key? :user_key
   end
   def request_is_sandboxed?
-    params.has_key?(:environment) && params[:environment].downcase == "sandbox"
+    (params.has_key?(:environment) && params[:environment].downcase == "sandbox") ||
+    (@user.present? && ZEDKIT_SANDBOXED.include?(@user.email))
   end
   def request_without_project_key?
     not request_has_project_key?

@@ -46,8 +46,8 @@ RSpec.configure do |config|
     @project_bert.email_settings.create! provider: EmailProvider::SENDGRID, username: "whatever", password: "pwd"
     @project_fred.email_settings.create! provider: EmailProvider::SENDGRID, username: "whatever", password: "pwd"
 
-    @blog_bert = @project_bert.blogs.create! :name => "Bert's BBS Blog"
-    @blog_fred = @project_fred.blogs.create! :name => "Fred's BBS Blog"
+    @blog_bert = @project_bert.blogs.create! name: "Bert's BBS Blog"
+    @blog_fred = @project_fred.blogs.create! name: "Fred's BBS Blog"
     @blog_bert.posts.create! user: @bert, title: "Ernie", content: "Ernie needs to do the dishes more often.", stage: "POSTED"
     @blog_bert.posts.create! user: @bert, title: "Elmo", content: "Elmo is a great inspiration.", stage: "FINAL"
     @blog_fred.posts.create! user: @fred, title: "Bam Bam", content: "Bam bam might be dyslexic.", stage: "POSTED"

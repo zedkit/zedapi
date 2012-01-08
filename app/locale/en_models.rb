@@ -29,6 +29,7 @@
   :project => "Project",
   :project_key => "ProjectKey",
   :project_locale => "ProjectLocale",
+  :project_admin => "ProjectAdmin",
   :user => "User",
   :user_login => "UserLogin",
   :user_preferences => "UserPreferences"
@@ -45,6 +46,7 @@
   :project => "Project",
   :project_key => "Project Key",
   :project_locale => "Project Locale",
+  :project_admin => "Project Admin",
   :user => "User",
   :user_login => "User Login",
   :user_preferences => "User Preferences"

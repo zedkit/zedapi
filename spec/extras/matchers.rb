@@ -27,13 +27,13 @@ RSpec::Matchers.define :be_valid_uuid do
 end
 
 RSpec::Matchers.define :be_zedkit_snapshot do
-  chain(:with) do |items|
-    @items = items
+  items ||= []
+  chain(:with) do |ii|
+    items = ii
   end
   match do |response|
-    @items ||= []
     json = JSON.parse(response.body)
-    response.status == 200 && (response.should be_valid_content) && json.is_a?(Hash) && json.has_all_as_zedkit_keys?(@items)
+    response.status == 200 && (response.should be_valid_content) && json.is_a?(Hash) && json.has_all_as_zedkit_keys?(items)
   end
 end
 RSpec::Matchers.define :be_zedkit_list do
@@ -42,13 +42,13 @@ RSpec::Matchers.define :be_zedkit_list do
   end
 end
 RSpec::Matchers.define :be_zedkit_object do
-  chain(:with_http_code) do |code|
-    @code = code
+  code ||= 200
+  chain(:with_http_code) do |cc|
+    code = cc
   end
   match do |response|
-    @code ||= 200
     json = JSON.parse(response.body)
-    response.status == @code && (response.should be_valid_content) && json.is_a?(Hash) \
+    response.status == code && (response.should be_valid_content) && json.is_a?(Hash) \
       && json.has_key?("uuid") \
       && json["uuid"].length == CollectionObject::LENGTH_UUID
   end
@@ -65,37 +65,40 @@ RSpec::Matchers.define :be_http_failure do |code|
   end
 end
 RSpec::Matchers.define :be_zedapi_status do |code|
-  chain(:with) do |message|
-    @message = message
+  message ||= nil
+  chain(:with) do |mm|
+    message = mm
   end
   match do |response|
     json = JSON.parse(response.body)
     response.status == 200 && (response.should be_valid_content) && json.is_a?(Hash) \
       && json["status"].present? \
-      && json["status"]["code"] == code && json["status"]["message"] == @message
+      && json["status"]["code"] == code && json["status"]["message"] == message
   end
 end
 
 RSpec::Matchers.define :validate_with do |message|
-  chain(:on) do |attribute|
-    @attribute = attribute
+  attribute = nil
+  chain(:on) do |tt|
+    attribute = tt
   end
   match do |pm|
     pm.valid?
-    pm.errors[@attribute].length == 1 && pm.errors[@attribute] == [message]
+    pm.errors[attribute].length == 1 && pm.errors[attribute] == [message]
   end
   failure_message_for_should do |pm|
-    "Validation for #{@attribute.to_s.inspect} is #{pm.errors[@attribute].inspect}."
+    "Validation for #{attribute.to_s.inspect} is #{pm.errors[attribute].inspect}."
   end
 end
 RSpec::Matchers.define :be_validation_failure_on do |attribute|
-  chain(:with) do |message|
-    @message = message
+  message = nil
+  chain(:with) do |mm|
+    message = mm
   end
   match do |response|
     json = JSON.parse(response.body)
     (response.should be_zedapi_status(805).with("Errors Detected on Submitted Data Item(s)")) \
       && json["errors"].present? \
-      && json["errors"]["attributes"].present? && json["errors"]["attributes"][attribute.to_s] == @message
+      && json["errors"]["attributes"].present? && json["errors"]["attributes"][attribute.to_s] == message
   end
 end
