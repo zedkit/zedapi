@@ -15,7 +15,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-namespace :mongo do
+namespace :db do
   desc "Create MongoDB collection indexes"
   task :indexes do
     MONGOID_MODELS.each do |model_name|
